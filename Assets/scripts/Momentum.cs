@@ -6,6 +6,8 @@ public class Momentum : MonoBehaviour
 {
     public float speed = 5f;
     public float rotationSpeed = 100f;
+    public float maxTiltAngle = 35f;
+    public float maxNegativeTiltAngle = -35f;
     private Rigidbody rb;
     private Quaternion originalRotation;
 
@@ -20,16 +22,20 @@ public class Momentum : MonoBehaviour
     void Update()
     {
         float moveAmount = Input.GetAxis("Horizontal") * speed;
-        Vector3 moveDirection = transform.forward * moveAmount;
-        rb.MovePosition(rb.position + moveDirection * Time.deltaTime);
+        Vector3 moveDirection = new Vector3(moveAmount, 0f, speed); // Z ekseninde sabit bir hızda ilerleme ekledik
+        rb.velocity = moveDirection;
 
         if (Input.GetKey(KeyCode.A))
         {
-            transform.Rotate(Vector3.left, rotationSpeed * Time.deltaTime);
+            float tiltAngle = Mathf.Clamp(transform.localEulerAngles.x - rotationSpeed * Time.deltaTime, -maxTiltAngle, maxNegativeTiltAngle);
+            Vector3 newRotation = new Vector3(tiltAngle, transform.localEulerAngles.y, transform.localEulerAngles.z);
+            transform.localEulerAngles = newRotation;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(Vector3.right, rotationSpeed * Time.deltaTime);
+            float tiltAngle = Mathf.Clamp(transform.localEulerAngles.x + rotationSpeed * Time.deltaTime, -maxNegativeTiltAngle, maxTiltAngle);
+            Vector3 newRotation = new Vector3(tiltAngle, transform.localEulerAngles.y, transform.localEulerAngles.z);
+            transform.localEulerAngles = newRotation;
         }
         else
         {
@@ -41,3 +47,4 @@ public class Momentum : MonoBehaviour
         }
     }
 }
+
